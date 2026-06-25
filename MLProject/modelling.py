@@ -1,6 +1,6 @@
 """
-modelling.py
-Versi CI - dijalankan oleh GitHub Actions via MLflow Project.
+modelling.py - Versi CI
+Dijalankan oleh GitHub Actions via MLflow Project.
 """
 
 import matplotlib
@@ -11,7 +11,6 @@ import mlflow.sklearn
 import numpy as np
 import os
 import pickle
-import matplotlib.pyplot as plt
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
@@ -19,16 +18,13 @@ from sklearn.metrics import (
     recall_score, f1_score
 )
 
-# ── Load Data ─────────────────────────────────────
-X_train = np.load('iris_preprocessing/X_train.npy')
-X_test  = np.load('iris_preprocessing/X_test.npy')
-y_train = np.load('iris_preprocessing/y_train.npy')
-y_test  = np.load('iris_preprocessing/y_test.npy')
+X_train = np.load('heart_preprocessing/X_train.npy')
+X_test  = np.load('heart_preprocessing/X_test.npy')
+y_train = np.load('heart_preprocessing/y_train.npy')
+y_test  = np.load('heart_preprocessing/y_test.npy')
 
 print(f"X_train: {X_train.shape} | X_test: {X_test.shape}")
 
-# ── Training ──────────────────────────────────────
-# Tidak pakai start_run — MLflow Project sudah handle run secara otomatis
 params = {'n_estimators': 100, 'max_depth': 5, 'random_state': 42}
 model = RandomForestClassifier(**params)
 model.fit(X_train, y_train)
@@ -39,7 +35,6 @@ prec = precision_score(y_test, preds, average='macro')
 rec  = recall_score(y_test, preds, average='macro')
 f1   = f1_score(y_test, preds, average='macro')
 
-# ── Manual Logging ke active run ──────────────────
 mlflow.log_params(params)
 mlflow.log_metric("accuracy",  acc)
 mlflow.log_metric("precision", prec)
@@ -47,7 +42,6 @@ mlflow.log_metric("recall",    rec)
 mlflow.log_metric("f1_score",  f1)
 mlflow.sklearn.log_model(model, "model")
 
-# ── Simpan model.pkl sebagai artifact ─────────────
 os.makedirs("outputs", exist_ok=True)
 with open("outputs/model.pkl", "wb") as f:
     pickle.dump(model, f)
